@@ -1,0 +1,30 @@
+import ApiError from "./api-error.js";
+import jwt from "jsonwebtoken";
+export const generateAccessToken = async (data) => {
+    const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+    const accessTokenExpiry = process.env.ACCESS_TOKEN_EXPIRY || "1hr";
+    if (!accessTokenSecret) {
+        throw new ApiError(500, "Internal server error: access token secret not set");
+    }
+    const accessToken = jwt.sign({
+        id: data.id,
+        email: data.email,
+    }, accessTokenSecret, {
+        expiresIn: accessTokenExpiry,
+    });
+    return accessToken;
+};
+export const generateRefreshToken = async ({ id }) => {
+    const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+    const refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRY || "7d";
+    if (!refreshTokenSecret) {
+        throw new ApiError(500, "Internal server error: refresh token secret not set");
+    }
+    const refreshToken = jwt.sign({
+        id,
+    }, refreshTokenSecret, {
+        expiresIn: refreshTokenExpiry,
+    });
+    return refreshToken;
+};
+//# sourceMappingURL=generate-token.js.map

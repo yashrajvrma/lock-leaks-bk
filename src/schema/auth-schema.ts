@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { Billed, PricingName } from "../generated/prisma";
+import { Billed, PricingName } from "../utils/types/pricing-types.js";
+// import { Billed, PricingName } from "../generated/prisma";
 
 const passwordSchema = z
   .string()

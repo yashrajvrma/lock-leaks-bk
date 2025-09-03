@@ -4,15 +4,15 @@ import {
   userSignUpSchema,
 } from "../../schema/auth-schema.js";
 import bcrypt from "bcrypt";
-import prisma from "../../config/db-config";
+import prisma from "../../config/db-config.js";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../../utils/generate-token";
+} from "../../utils/generate-token.js";
 import ApiResponse from "../../utils/api-response.js";
-import { saltRounds } from "../../utils/constant/index";
+import { saltRounds } from "../../utils/constant/index.js";
 import AsyncHandler from "../../utils/async-handler.js";
-import jwt, { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import ApiError from "../../utils/api-error.js";
 import { CreatePlatformProps } from "../../utils/types/platform-types.js";
 

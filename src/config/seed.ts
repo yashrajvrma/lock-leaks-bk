@@ -1,5 +1,5 @@
-import { pricingData } from "../data/pricing-data";
-import prisma from "./db-config";
+import { pricingData } from "../data/pricing-data.js";
+import prisma from "./db-config.js";
 
 async function main() {
   // seeding pricing data
