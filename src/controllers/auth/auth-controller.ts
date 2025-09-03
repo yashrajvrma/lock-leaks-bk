@@ -19,12 +19,12 @@ import { CreatePlatformProps } from "../../utils/types/platform-types.js";
 export const signIn = AsyncHandler(async (req, res) => {
   console.log("BODY =>", req.body);
 
-  const { phoneNum, password } = userSignInSchema.parse(req.body);
+  const { email, password } = userSignInSchema.parse(req.body);
 
-  console.log(phoneNum, password);
+  console.log(email, password);
 
-  if (!phoneNum) {
-    throw new ApiError(400, "Mobile number is required");
+  if (!email) {
+    throw new ApiError(400, "Email  is required");
   }
   if (!password) {
     throw new ApiError(400, "Password is required");
@@ -32,19 +32,17 @@ export const signIn = AsyncHandler(async (req, res) => {
 
   const isValidUser = await prisma.user.findUnique({
     where: {
-      phoneNum,
+      email,
     },
     select: {
       id: true,
-      fullName: true,
-      phoneNum: true,
+      email: true,
       password: true,
-      role: true,
     },
   });
 
   if (!isValidUser) {
-    throw new ApiError(400, `No account found with ${phoneNum}`);
+    throw new ApiError(400, `No account found with ${email}`);
   }
 
   const isPasswordCorrect = await bcrypt.compare(
@@ -58,8 +56,7 @@ export const signIn = AsyncHandler(async (req, res) => {
 
   const accessToken = await generateAccessToken({
     id: isValidUser.id,
-    fullName: isValidUser.fullName,
-    role: isValidUser.role,
+    email: isValidUser.email,
   });
 
   const refreshToken = await generateRefreshToken({
@@ -84,8 +81,7 @@ export const signIn = AsyncHandler(async (req, res) => {
 
   return res.json(
     new ApiResponse(200, {
-      fullName: isValidUser.fullName,
-      role: isValidUser.role,
+      email: isValidUser.email,
       accessToken: accessToken,
     })
   );
@@ -198,6 +194,7 @@ export const signUp = AsyncHandler(async (req, res) => {
           contactLiveChat: createPlatform.contactLiveChat,
           contactEmail: createPlatform.contactEmail,
         },
+        accessToken,
       },
       "User creaated successfully"
     )
@@ -237,8 +234,7 @@ export const refreshAccessToken = AsyncHandler(async (req, res) => {
 
   const accessToken = await generateAccessToken({
     id: user.id,
-    fullName: user.fullName,
-    role: user.role,
+    email: user.email,
   });
 
   const refreshToken = await generateRefreshToken({

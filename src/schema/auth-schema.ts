@@ -41,8 +41,8 @@ export const userSignUpSchema = z.object({
   username: z.string().min(1, {
     message: "Username is required",
   }),
-  email: z.email({
-    message: "Email is required",
+  email: z.string().email({
+    message: "Invalid email address",
   }),
   password: passwordSchema,
   contactWhatsappNumber: phoneNumSchema.optional(),
@@ -52,6 +52,8 @@ export const userSignUpSchema = z.object({
 });
 
 export const userSignInSchema = z.object({
-  phoneNum: phoneNumSchema,
+  email: z.string().email({
+    message: "Invalid email address",
+  }),
   password: passwordSchema,
 });
