@@ -3,17 +3,17 @@ import {
   userSignInSchema,
   userSignUpSchema,
 } from "../../schema/auth-schema.js";
-import ApiError from "../auth/auth-controller";
 import bcrypt from "bcrypt";
-import prisma from "../../config/db-config.js";
+import prisma from "../../config/db-config";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../../utils/generateToken.js";
+} from "../../utils/generate-token";
 import ApiResponse from "../../utils/api-response.js";
-import { saltRounds } from "../../utils/constants/index.js";
+import { saltRounds } from "../../utils/constant/index";
 import AsyncHandler from "../../utils/async-handler.js";
 import jwt, { decode } from "jsonwebtoken";
+import ApiError from "../../utils/api-error.js";
 
 export const signIn = AsyncHandler(async (req, res) => {
   console.log("BODY =>", req.body);
@@ -91,26 +91,35 @@ export const signIn = AsyncHandler(async (req, res) => {
 });
 
 export const signUp = AsyncHandler(async (req, res) => {
-  const { fullName, phoneNum, password, role } = userSignUpSchema.parse(
-    req.body
-  );
+  const {
+    pricingName,
+    billed,
+    platform,
+    username,
+    email,
+    password,
+    contactWhatsappNumber,
+    contactPhoneNumber,
+    contactEmail,
+    contactLiveChat,
+  } = userSignUpSchema.parse(req.body);
 
   const isExistingUser = await prisma.user.findUnique({
     where: {
-      phoneNum,
+      email,
     },
   });
 
   if (isExistingUser) {
-    throw new ApiError(400, `User already exists with Mobile no ${phoneNum}`);
+    throw new ApiError(400, `User already exists with Mobile no ${email}`);
   }
 
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   const newUser = await prisma.user.create({
     data: {
-      fullName,
-      phoneNum,
+        platform,
+        
       password: hashedPassword,
       role,
     },
