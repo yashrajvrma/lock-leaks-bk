@@ -1,11 +1,9 @@
-import prisma from "../config/db-config.js";
 import ApiError from "./api-error.js";
 import jwt from "jsonwebtoken";
 
 interface TokenDataProps {
   id: string;
-  fullName: string;
-  role: string;
+  email: string;
 }
 
 export const generateAccessToken = async (data: TokenDataProps) => {
@@ -22,8 +20,7 @@ export const generateAccessToken = async (data: TokenDataProps) => {
   const accessToken = jwt.sign(
     {
       id: data.id,
-      fullName: data.fullName,
-      role: data.role,
+      email: data.email,
     },
     accessTokenSecret,
     {
