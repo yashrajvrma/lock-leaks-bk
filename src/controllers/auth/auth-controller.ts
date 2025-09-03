@@ -14,6 +14,7 @@ import { saltRounds } from "../../utils/constant/index";
 import AsyncHandler from "../../utils/async-handler.js";
 import jwt, { decode } from "jsonwebtoken";
 import ApiError from "../../utils/api-error.js";
+import { CreatePlatformProps } from "../../utils/types/platform-types.js";
 
 export const signIn = AsyncHandler(async (req, res) => {
   console.log("BODY =>", req.body);
@@ -104,6 +105,20 @@ export const signUp = AsyncHandler(async (req, res) => {
     contactLiveChat,
   } = userSignUpSchema.parse(req.body);
 
+  const platformData: CreatePlatformProps = {
+    platform,
+    username,
+  };
+
+  if (contactWhatsappNumber)
+    platformData.contactWhatsappNumber = contactWhatsappNumber;
+
+  if (contactEmail) platformData.contactEmail = contactEmail;
+
+  if (contactPhoneNumber) platformData.contactPhoneNumber = contactPhoneNumber;
+
+  if (contactLiveChat) platformData.contactLiveChat = contactLiveChat;
+
   const isExistingUser = await prisma.user.findUnique({
     where: {
       email,
@@ -114,19 +129,34 @@ export const signUp = AsyncHandler(async (req, res) => {
     throw new ApiError(400, `User already exists with Mobile no ${email}`);
   }
 
+  const pricing = await prisma.pricing.findFirst({
+    where: {
+      name: pricingName,
+      billed: billed,
+    },
+  });
+
+  if (!pricing) {
+    throw new ApiError(400, "Pricing details is required");
+  }
+
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   const newUser = await prisma.user.create({
     data: {
       email,
       password: hashedPassword,
+      priceId: pricing.id,
     },
+  });
+
+  const createPlatform = await prisma.platform.create({
+    data: platformData,
   });
 
   const accessToken = await generateAccessToken({
     id: newUser.id,
-    fullName: newUser.fullName,
-    role: newUser.role,
+    email: newUser.email,
   });
 
   const refreshToken = await generateRefreshToken({
@@ -139,6 +169,7 @@ export const signUp = AsyncHandler(async (req, res) => {
     },
     data: {
       refreshToken,
+      platformId: createPlatform.id,
     },
   });
 

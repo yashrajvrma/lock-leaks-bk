@@ -33,11 +33,13 @@ model User {
   email    String @unique
   password String @db.VarChar(255)
 
+  refreshToken String?
+
   priceId String  @unique
   price   Pricing @relation(fields: [priceId], references: [id])
 
-  platformId String
-  platform   Platform @relation(fields: [platformId], references: [id])
+  platformId String?
+  platform   Platform? @relation(fields: [platformId], references: [id])
 }
 
 model Pricing {
