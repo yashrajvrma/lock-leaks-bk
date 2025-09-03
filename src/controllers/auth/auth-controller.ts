@@ -185,10 +185,19 @@ export const signUp = AsyncHandler(async (req, res) => {
       200,
       {
         id: newUser.id,
-        fullName: newUser.fullName,
-        phoneNum: newUser.phoneNum,
-        role: newUser.role,
-        accessToken,
+        email: newUser.email,
+        pricing: {
+          tier: pricing.name,
+        },
+        platform: {
+          id: createPlatform.id,
+          platform: createPlatform.platform,
+          username: createPlatform.username,
+          contactWhatsappNumber: createPlatform.contactWhatsappNumber ?? "",
+          contactPhoneNumber: createPlatform.contactPhoneNumber ?? "",
+          contactLiveChat: createPlatform.contactLiveChat,
+          contactEmail: createPlatform.contactEmail,
+        },
       },
       "User creaated successfully"
     )
