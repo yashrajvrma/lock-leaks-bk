@@ -1,20 +1,17 @@
 import type { Request, Response } from "express";
-import {
-  userSignInSchema,
-  userSignUpSchema,
-} from "../../schema/auth-schema.js";
+import { userSignInSchema, userSignUpSchema } from "../../schema/auth-schema";
 import bcrypt from "bcrypt";
-import prisma from "../../config/db-config.js";
+import prisma from "../../config/db-config";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../../utils/generate-token.js";
-import ApiResponse from "../../utils/api-response.js";
-import { saltRounds } from "../../utils/constant/index.js";
-import AsyncHandler from "../../utils/async-handler.js";
+} from "../../utils/generate-token";
+import ApiResponse from "../../utils/api-response";
+import { saltRounds } from "../../utils/constant/index";
+import AsyncHandler from "../../utils/async-handler";
 import jwt from "jsonwebtoken";
-import ApiError from "../../utils/api-error.js";
-import { CreatePlatformProps } from "../../utils/types/platform-types.js";
+import ApiError from "../../utils/api-error";
+import { CreatePlatformProps } from "../../utils/types/platform-types";
 
 export const signIn = AsyncHandler(async (req, res) => {
   console.log("BODY =>", req.body);

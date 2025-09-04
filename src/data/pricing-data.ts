@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import {
   PricingName,
   PricingSeedDataProps,
-} from "../utils/types/pricing-types.js";
-import { Billed } from "../utils/types/pricing-types.js";
+} from "../utils/types/pricing-types";
+import { Billed } from "../utils/types/pricing-types";
 
 export const pricingData: PricingSeedDataProps[] = [
   {

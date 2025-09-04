@@ -35,11 +35,11 @@ app.get("/", (req, res) => {
 });
 
 // import routes
-import authRouter from "./routes/auth-routes.js";
+import authRouter from "./routes/auth-routes";
 app.use("/v1/api/auth", authRouter);
 
 // error middleware
-import errorHandler from "./middlewares/error-middleware.js";
+import errorHandler from "./middlewares/error-middleware";
 app.use(errorHandler);
 
 app.listen(port, () => {
