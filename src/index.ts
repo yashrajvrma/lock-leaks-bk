@@ -1,12 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 dotenv.config();
 
 const port = process.env.PORT || 8080;
 
 const app = express();
+
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"], // Ensure needed methods are allowed
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+  })
+);
 
 app.use(cookieParser());
 
@@ -28,9 +38,9 @@ app.get("/", (req, res) => {
 import authRouter from "./routes/auth-routes.js";
 app.use("/v1/api/auth", authRouter);
 
-// // error middleware
-// import errorHandler from "./middlewares/error-middleware.js";
-// app.use(errorHandler);
+// error middleware
+import errorHandler from "./middlewares/error-middleware.js";
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
