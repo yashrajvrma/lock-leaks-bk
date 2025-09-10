@@ -1,23 +1,29 @@
-import { userSignInSchema, userSignUpSchema, } from "../../schema/auth-schema.js";
-import bcrypt from "bcrypt";
-import prisma from "../../config/db-config.js";
-import { generateAccessToken, generateRefreshToken, } from "../../utils/generate-token.js";
-import ApiResponse from "../../utils/api-response.js";
-import { saltRounds } from "../../utils/constant/index.js";
-import AsyncHandler from "../../utils/async-handler.js";
-import jwt from "jsonwebtoken";
-import ApiError from "../../utils/api-error.js";
-export const signIn = AsyncHandler(async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.refreshAccessToken = exports.signUp = exports.signIn = void 0;
+const auth_schema_1 = require("../../schema/auth-schema");
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const db_config_1 = __importDefault(require("../../config/db-config"));
+const generate_token_1 = require("../../utils/generate-token");
+const api_response_1 = __importDefault(require("../../utils/api-response"));
+const index_1 = require("../../utils/constant/index");
+const async_handler_1 = __importDefault(require("../../utils/async-handler"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const api_error_1 = __importDefault(require("../../utils/api-error"));
+exports.signIn = (0, async_handler_1.default)(async (req, res) => {
     console.log("BODY =>", req.body);
-    const { email, password } = userSignInSchema.parse(req.body);
+    const { email, password } = auth_schema_1.userSignInSchema.parse(req.body);
     console.log(email, password);
     if (!email) {
-        throw new ApiError(400, "Email  is required");
+        throw new api_error_1.default(400, "Email  is required");
     }
     if (!password) {
-        throw new ApiError(400, "Password is required");
+        throw new api_error_1.default(400, "Password is required");
     }
-    const isValidUser = await prisma.user.findUnique({
+    const isValidUser = await db_config_1.default.user.findUnique({
         where: {
             email,
         },
@@ -28,20 +34,20 @@ export const signIn = AsyncHandler(async (req, res) => {
         },
     });
     if (!isValidUser) {
-        throw new ApiError(400, `No account found with ${email}`);
+        throw new api_error_1.default(400, `No account found with ${email}`);
     }
-    const isPasswordCorrect = await bcrypt.compare(password, isValidUser.password);
+    const isPasswordCorrect = await bcrypt_1.default.compare(password, isValidUser.password);
     if (!isPasswordCorrect) {
-        throw new ApiError(400, "Invalid Password");
+        throw new api_error_1.default(400, "Invalid Password");
     }
-    const accessToken = await generateAccessToken({
+    const accessToken = await (0, generate_token_1.generateAccessToken)({
         id: isValidUser.id,
         email: isValidUser.email,
     });
-    const refreshToken = await generateRefreshToken({
+    const refreshToken = await (0, generate_token_1.generateRefreshToken)({
         id: isValidUser.id,
     });
-    await prisma.user.update({
+    await db_config_1.default.user.update({
         where: {
             id: isValidUser.id,
         },
@@ -55,13 +61,13 @@ export const signIn = AsyncHandler(async (req, res) => {
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 1000,
     });
-    return res.json(new ApiResponse(200, {
+    return res.json(new api_response_1.default(200, {
         email: isValidUser.email,
         accessToken: accessToken,
     }));
 });
-export const signUp = AsyncHandler(async (req, res) => {
-    const { pricingName, billed, platform, username, email, password, contactWhatsappNumber, contactPhoneNumber, contactEmail, contactLiveChat, } = userSignUpSchema.parse(req.body);
+exports.signUp = (0, async_handler_1.default)(async (req, res) => {
+    const { pricingName, billed, platform, username, email, password, contactWhatsappNumber, contactPhoneNumber, contactEmail, contactLiveChat, } = auth_schema_1.userSignUpSchema.parse(req.body);
     const platformData = {
         platform,
         username,
@@ -74,42 +80,42 @@ export const signUp = AsyncHandler(async (req, res) => {
         platformData.contactPhoneNumber = contactPhoneNumber;
     if (contactLiveChat)
         platformData.contactLiveChat = contactLiveChat;
-    const isExistingUser = await prisma.user.findUnique({
+    const isExistingUser = await db_config_1.default.user.findUnique({
         where: {
             email,
         },
     });
     if (isExistingUser) {
-        throw new ApiError(400, `User already exists with Mobile no ${email}`);
+        throw new api_error_1.default(400, `User already exists with Mobile no ${email}`);
     }
-    const pricing = await prisma.pricing.findFirst({
+    const pricing = await db_config_1.default.pricing.findFirst({
         where: {
             name: pricingName,
             billed: billed,
         },
     });
     if (!pricing) {
-        throw new ApiError(400, "Pricing details is required");
+        throw new api_error_1.default(400, "Pricing details is required");
     }
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const newUser = await prisma.user.create({
+    const hashedPassword = await bcrypt_1.default.hash(password, index_1.saltRounds);
+    const newUser = await db_config_1.default.user.create({
         data: {
             email,
             password: hashedPassword,
             priceId: pricing.id,
         },
     });
-    const createPlatform = await prisma.platform.create({
+    const createPlatform = await db_config_1.default.platform.create({
         data: platformData,
     });
-    const accessToken = await generateAccessToken({
+    const accessToken = await (0, generate_token_1.generateAccessToken)({
         id: newUser.id,
         email: newUser.email,
     });
-    const refreshToken = await generateRefreshToken({
+    const refreshToken = await (0, generate_token_1.generateRefreshToken)({
         id: newUser.id,
     });
-    await prisma.user.update({
+    await db_config_1.default.user.update({
         where: {
             id: newUser.id,
         },
@@ -124,7 +130,7 @@ export const signUp = AsyncHandler(async (req, res) => {
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    return res.json(new ApiResponse(200, {
+    return res.json(new api_response_1.default(200, {
         id: newUser.id,
         email: newUser.email,
         pricing: {
@@ -142,33 +148,33 @@ export const signUp = AsyncHandler(async (req, res) => {
         accessToken,
     }, "User creaated successfully"));
 });
-export const refreshAccessToken = AsyncHandler(async (req, res) => {
+exports.refreshAccessToken = (0, async_handler_1.default)(async (req, res) => {
     const token = req.cookies?.refreshToken;
     if (!token) {
-        throw new ApiError(401, "Unauthorised request");
+        throw new api_error_1.default(401, "Unauthorised request");
     }
     const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
-    const decodedToken = jwt.verify(token, refreshTokenSecret);
+    const decodedToken = jsonwebtoken_1.default.verify(token, refreshTokenSecret);
     if (!decodedToken || !decodedToken.id) {
-        throw new ApiError(400, "Invalid refresh token");
+        throw new api_error_1.default(400, "Invalid refresh token");
     }
     console.log("decode data is", JSON.stringify(decodedToken));
-    const user = await prisma.user.findUnique({
+    const user = await db_config_1.default.user.findUnique({
         where: {
             id: decodedToken.id,
         },
     });
     if (!user) {
-        throw new ApiError(400, "User not found");
+        throw new api_error_1.default(400, "User not found");
     }
     if (token != user.refreshToken) {
-        throw new ApiError(401, "Refresh token is expired");
+        throw new api_error_1.default(401, "Refresh token is expired");
     }
-    const accessToken = await generateAccessToken({
+    const accessToken = await (0, generate_token_1.generateAccessToken)({
         id: user.id,
         email: user.email,
     });
-    const refreshToken = await generateRefreshToken({
+    const refreshToken = await (0, generate_token_1.generateRefreshToken)({
         id: user.id,
     });
     res.cookie("refreshToken", refreshToken, {
@@ -177,7 +183,7 @@ export const refreshAccessToken = AsyncHandler(async (req, res) => {
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.json(new ApiResponse(200, {
+    return res.json(new api_response_1.default(200, {
         accessToken,
     }, "Refresh token loaded successfully"));
 });

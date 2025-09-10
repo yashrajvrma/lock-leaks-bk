@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Billed, PricingName } from "../utils/types/pricing-types.js";
+import { Billed, PricingName } from "../utils/types/pricing-types";
 export declare const userSignUpSchema: z.ZodObject<{
     pricingName: z.ZodEnum<typeof PricingName>;
     billed: z.ZodEnum<typeof Billed>;

@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class ApiError extends Error {
     statusCode;
     data;
@@ -17,5 +19,5 @@ class ApiError extends Error {
         }
     }
 }
-export default ApiError;
+exports.default = ApiError;
 //# sourceMappingURL=api-error.js.map

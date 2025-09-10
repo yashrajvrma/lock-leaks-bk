@@ -1,4 +1,5 @@
-export {};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // export type User = {
 //   id: string;
 //   fullName: string;
